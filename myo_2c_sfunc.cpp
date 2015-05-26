@@ -55,7 +55,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (!mYo) {throw std::runtime_error("Unable to find a Myo!");}
 
     // Enable EMG streaming
-    mYo->setStreamEmg(myo::Myo::streamEmgEnabled);
+//     mYo->setStreamEmg(myo::Myo::streamEmgEnabled);
     mYo->unlock(myo::Myo::unlockHold);
     hUb.setLockingPolicy(hUb.lockingPolicyNone);
     
@@ -69,14 +69,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         "emgData",
         "onArm",
         "isUnlocked",
-        "onWhichArm"
+        "onWhichArm",
+        "whichPose",
+        "eCounter",
+        "aCounter",
+        "gCounter"
                 
     };
     int frame_fields = sizeof (frame_field_names) / sizeof (*frame_field_names); 
     plhs[0] = mxCreateStructMatrix (1, 1, frame_fields, frame_field_names);
     
     int counter=0;
-    int mRow=522;
+    int mRow=12000;
     
     const mwSize dims[]={mRow,1};
     const mwSize dimsV[]={mRow,3};
@@ -91,6 +95,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mxArray *mxOnArm = mxCreateLogicalArray (2, dims);  
     mxArray *mxWhichArm=mxCreateLogicalArray (2, dims); 
     mxArray *mxisUnlocked=mxCreateLogicalArray (2, dims); 
+    mxArray *mxwPose = mxCreateNumericArray (2, dims, mxDOUBLE_CLASS, mxREAL); 
+    mxArray *mxeCounter = mxCreateNumericArray (2, dims, mxDOUBLE_CLASS, mxREAL); 
+    mxArray *mxaCounter = mxCreateNumericArray (2, dims, mxDOUBLE_CLASS, mxREAL); 
+    mxArray *mxgCounter = mxCreateNumericArray (2, dims, mxDOUBLE_CLASS, mxREAL); 
     
     /* Check for proper number of input and  output arguments */    
     if (nrhs !=0) {
@@ -109,7 +117,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     {
         // In each iteration of our main loop, we run the Myo event loop for a set number of milliseconds.
         // In this case, we wish to update our display 20 times a second, so we run for 1000/20 milliseconds.
-        hUb.run(1000/20);
+        hUb.run(1);
 //        mYo->unlock(myo::Myo::unlockHold);
          
         // get the frame
@@ -120,7 +128,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         *(mxGetPr (mxPitch) + counter) =  f.pitch;
         *(mxGetPr (mxYaw) + counter) =  f.yaw;
         *(mxGetLogicals (mxOnArm) + counter) =  f.onArm;   
+        *(mxGetPr (mxwPose) + counter) =  f.wPose;
+        *(mxGetPr (mxeCounter) + counter) =  f.ecounter;
+        *(mxGetPr (mxaCounter) + counter) =  f.acounter;
+        *(mxGetPr (mxgCounter) + counter) =  f.gcounter;
         
+                
         if(f.onArm)
         {
             *(mxGetLogicals (mxWhichArm) + counter) = (f.whichArm);
@@ -132,14 +145,19 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
              
         mxArray *accData = create_fill_vector3 (f.accData);
         mxArray *gyroData = create_fill_vector3 (f.gyroData);
-        mxArray *emgData = create_fill_EMG(f.emgData);
+//         mxArray *emgData = create_fill_EMG(f.emgData);
          
         matAssign(mxaccDataVec, accData, counter, mRow, 3);
         matAssign(mxgyroDataVec, gyroData, counter, mRow, 3);
-        matAssign(mxEMGDataVec, emgData, counter, mRow, 8);
         
+        
+        mxArray *emgData = create_fill_EMG(f.emgData);
+        matAssign(mxEMGDataVec, emgData, counter, mRow, 8);
  
+  
         counter++;
+       
+        
         
         if( counter>= mRow)//||f.isUnlocked==false)
        {
@@ -158,9 +176,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      mxSetFieldByNumber (plhs[0], 0, 6, mxOnArm);
      mxSetFieldByNumber (plhs[0], 0, 7, mxisUnlocked);
      mxSetFieldByNumber (plhs[0], 0, 8, mxWhichArm);
+     mxSetFieldByNumber (plhs[0], 0, 9, mxwPose);
+     mxSetFieldByNumber (plhs[0], 0, 10, mxeCounter);
+     mxSetFieldByNumber (plhs[0], 0, 11, mxaCounter);
+     mxSetFieldByNumber (plhs[0], 0, 12, mxgCounter);
      
      hUb.removeListener(&dataCollector);
- 
+     
   
 } 
 
