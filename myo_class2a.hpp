@@ -27,9 +27,9 @@ struct Frame
 	myo::Vector3<float> accData, gyroData;
 	std::array<int8_t, 8> emgData;
 	int wPose;
-    int ecounter=0;
-    int acounter=0;
-    int gcounter=0;
+    int ecounter;
+    int acounter;
+    int gcounter;
 
 };
 
@@ -41,7 +41,7 @@ private:
 public:
 	DataCollector()
 		: onArm(false), isUnlocked(true), roll_w(0), pitch_w(0), yaw_w(0), currentPose(),
-		emgData(), accData(), gyroData(), wPose()
+		emgData(), accData(), gyroData(), wPose(), ecounter(0), acounter(0), gcounter(0)
 	{
 	}
 
@@ -199,9 +199,9 @@ public:
 	myo::Vector3<float> accData;
 	myo::Vector3<float > gyroData;
     
-    int ecounter=0;
-    int acounter=0;
-    int gcounter=0;
+    int ecounter;
+    int acounter;
+    int gcounter;
 
 	const Frame &getFrame()
 	{
