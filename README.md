@@ -22,3 +22,6 @@ For Citations please refer to:
     year={2016},<br>
     publisher={Elsevier}<br>
   }
+
+[Hand posture and gesture recognition using MYO armband and spectral collaborative representation based classification](https://www.sciencedirect.com/science/article/pii/S1746809415001494)
+[Spectral Collaborative Representation based Classification for hand gestures recognition on electromyography signals](https://pdfs.semanticscholar.org/71be/65410d22b3a2bdd556342c2acc4f6f41c382.pdf)
