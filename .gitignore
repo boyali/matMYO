@@ -45,3 +45,5 @@ Temporary Items
 # MEX-file binaries
 *.mex*
 
+*.asv
+*.mexw64

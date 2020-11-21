@@ -9,6 +9,9 @@
 #include <string>
 #include "myo_class2a.hpp"
 
+#define NUM_DEF 1
+#define NUM_MAX 12000UL
+
 DataCollector dataCollector;
 
  
@@ -46,7 +49,26 @@ mxArray *create_fill_EMG (const std::array<int8_t, 8> emgData)
  
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-     
+  long int num = NUM_DEF; // default value for input num
+  
+  // handle optional input num
+  if ( nrhs>0 ) { // user input value for num
+    // check for valid input type and size
+    if( !mxIsDouble(prhs[0]) || mxIsComplex(prhs[0]) ||
+        !(mxGetM(prhs[0])==1 && mxGetM(prhs[0])==1) )
+      mexErrMsgTxt("Input num must be a real numeric scalar.");
+    // get the input value
+    num = *mxGetPr(prhs[0]); // implicit cast to integer value
+    // check for valid input value
+    if (num<1 || num>NUM_MAX)
+      mexErrMsgTxt("Input num is out of range.");
+  }
+  
+  // check number of output arguments
+  if(nlhs > 1){
+    mexErrMsgTxt("Too many output arguments.");
+  }
+  
     myo::Hub hUb("com.example.hello-myo"); 
 	hUb.addListener(&dataCollector);
     myo::Myo* mYo = hUb.waitForMyo(10);
@@ -80,7 +102,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     plhs[0] = mxCreateStructMatrix (1, 1, frame_fields, frame_field_names);
     
     int counter=0;
-    int mRow=12000;
+    int mRow=num;//12000;
     
     const mwSize dims[]={mRow,1};
     const mwSize dimsV[]={mRow,3};
@@ -100,14 +122,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mxArray *mxaCounter = mxCreateNumericArray (2, dims, mxDOUBLE_CLASS, mxREAL); 
     mxArray *mxgCounter = mxCreateNumericArray (2, dims, mxDOUBLE_CLASS, mxREAL); 
     
-    /* Check for proper number of input and  output arguments */    
-    if (nrhs !=0) {
-        mexErrMsgTxt("No input argument required.");
-    } 
-    if(nlhs > 1){
-        mexErrMsgTxt("Too many output arguments.");
-    }
-
+    
 //     int counter=1;
 //     // Finally we enter our main loop.
  
